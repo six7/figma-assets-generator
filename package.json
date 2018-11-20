@@ -1,0 +1,38 @@
+{
+  "name": "@six7/figma-assets-generator",
+  "description": "Create figma assets like icons, svg, images just by providing a fileId and the node where your components live.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Jan Six / six.jan@gmail.com",
+  "license": "MIT",
+  "dependencies": {
+    "figma-js": "^1.5.1",
+    "fs": "^0.0.1-security",
+    "node-fetch": "^2.3.0"
+  },
+  "bin": {
+    "figma-assets-generator": "./src/bin/index.js"
+  },
+  "scripts": {
+    "start": "node .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "figma-assets": "figma-asset-generator"
+  },
+  "devDependencies": {
+    "dotenv": "^6.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/six7/figma-assets-generator.git"
+  },
+  "keywords": [
+    "figma",
+    "svg",
+    "icon",
+    "asset"
+  ],
+  "bugs": {
+    "url": "https://github.com/six7/figma-assets-generator/issues"
+  },
+  "homepage": "https://github.com/six7/figma-assets-generator#readme"
+}
