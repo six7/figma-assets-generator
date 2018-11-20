@@ -1,5 +1,5 @@
 {
-  "name": "@six7/figma-assets-generator",
+  "name": "figma-assets-generator",
   "description": "Create figma assets like icons, svg, images just by providing a fileId and the node where your components live.",
   "version": "1.0.0",
   "main": "index.js",
