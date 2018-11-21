@@ -1,7 +1,7 @@
 {
   "name": "figma-assets-generator",
   "description": "Create figma assets like icons, svg, images just by providing a fileId and the node where your components live.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "author": "Jan Six / six.jan@gmail.com",
   "license": "MIT",
@@ -11,7 +11,7 @@
     "node-fetch": "^2.3.0"
   },
   "bin": {
-    "figma-assets-generator": "./src/bin/index.js"
+    "figma-assets-generator": "src/bin/index.js"
   },
   "scripts": {
     "start": "node .",
