@@ -5,11 +5,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getFigmaAssets = void 0;
 
+var _fs = _interopRequireDefault(require("fs"));
+
 var Figma = _interopRequireWildcard(require("figma-js"));
 
-var _saveFile = require("./saveFile");
+var _listr = _interopRequireDefault(require("listr"));
+
+var _saveImageToFs = require("./helpers/saveImageToFs");
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
 
@@ -19,22 +25,55 @@ require("@babel/polyfill");
 
 require("dotenv").config();
 
-var Listr = require("listr");
+var CONFIG_FILENAME = "figma-assets-generator.json";
 
 var getFigmaAssets =
 /*#__PURE__*/
 function () {
-  var _ref2 = _asyncToGenerator(
+  var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee3(_ref) {
-    var fileId, documentId, _ref$fileExtension, fileExtension, _ref$personalAccessTo, personalAccessToken, _ref$output, output, client, itemDocument, items, itemsWithUrls, getFileInfo, getItemsFromFrames, getImageURLs, saveImages, taskItems, tasks;
+  regeneratorRuntime.mark(function _callee3(options) {
+    var config, _ref2, fileId, documentId, fileExtension, personalAccessToken, output, client, itemDocument, items, itemsWithUrls, getFileInfo, getItemsFromFrames, getImageURLs, saveImages, taskItems, tasks;
 
     return regeneratorRuntime.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
-            fileId = _ref.fileId, documentId = _ref.documentId, _ref$fileExtension = _ref.fileExtension, fileExtension = _ref$fileExtension === void 0 ? "svg" : _ref$fileExtension, _ref$personalAccessTo = _ref.personalAccessToken, personalAccessToken = _ref$personalAccessTo === void 0 ? process.env.FIGMA_TOKEN : _ref$personalAccessTo, _ref$output = _ref.output, output = _ref$output === void 0 ? "icons" : _ref$output;
-            _context3.prev = 1;
+            _context3.prev = 0;
+            _context3.next = 3;
+            return JSON.parse(_fs.default.readFileSync(CONFIG_FILENAME, "utf-8"));
+
+          case 3:
+            config = _context3.sent;
+            _ref2 = options || config, fileId = _ref2.fileId, documentId = _ref2.documentId, fileExtension = _ref2.fileExtension, personalAccessToken = _ref2.personalAccessToken, output = _ref2.output;
+            output = output || "assets";
+            fileExtension = fileExtension || "svg";
+            personalAccessToken = personalAccessToken || process.env.FIGMA_TOKEN;
+
+            if (personalAccessToken) {
+              _context3.next = 10;
+              break;
+            }
+
+            throw new Error("No token specified!");
+
+          case 10:
+            if (fileId) {
+              _context3.next = 12;
+              break;
+            }
+
+            throw new Error("No file id given");
+
+          case 12:
+            if (documentId) {
+              _context3.next = 14;
+              break;
+            }
+
+            throw new Error("No document id given");
+
+          case 14:
             client = Figma.Client({
               personalAccessToken: personalAccessToken
             });
@@ -61,10 +100,19 @@ function () {
                         itemDocument = file.data.document.children.find(function (doc) {
                           return doc.id === documentId;
                         });
+
+                        if (itemDocument.name) {
+                          _context.next = 6;
+                          break;
+                        }
+
+                        throw new Error("node id not found");
+
+                      case 6:
                         task.title = "Found document ".concat(itemDocument.name);
                         return _context.abrupt("return", itemDocument);
 
-                      case 6:
+                      case 8:
                       case "end":
                         return _context.stop();
                     }
@@ -88,7 +136,7 @@ function () {
                   });
                 });
               });
-              if (items.length === 0) throw "No items found";
+              if (items.length === 0) throw new Error("No items found");
               task.title = "Found ".concat(items.length, " items");
               return items.length;
             };
@@ -152,12 +200,12 @@ function () {
               try {
                 itemsWithUrls.forEach(function (item, idx) {
                   var name = item.name.replace(/\/|\./g, "_");
-                  (0, _saveFile.saveImageToFs)(item.url, "".concat(name, ".").concat(fileExtension), output);
+                  (0, _saveImageToFs.saveImageToFs)(item.url, "".concat(name, ".").concat(fileExtension), output);
                 });
                 task.title = "Sucess! Saved images to '".concat(output, "'");
                 return itemsWithUrls;
               } catch (e) {
-                throw "Error saving images to filesystem";
+                throw new Error("Error saving images to filesystem");
               }
             };
 
@@ -182,29 +230,29 @@ function () {
                 return saveImages(_task4);
               }
             }];
-            tasks = new Listr(taskItems);
-            _context3.next = 14;
+            tasks = new _listr.default(taskItems);
+            _context3.next = 26;
             return tasks.run();
 
-          case 14:
-            _context3.next = 19;
+          case 26:
+            _context3.next = 31;
             break;
 
-          case 16:
-            _context3.prev = 16;
-            _context3.t0 = _context3["catch"](1);
+          case 28:
+            _context3.prev = 28;
+            _context3.t0 = _context3["catch"](0);
             console.error(_context3.t0);
 
-          case 19:
+          case 31:
           case "end":
             return _context3.stop();
         }
       }
-    }, _callee3, this, [[1, 16]]);
+    }, _callee3, this, [[0, 28]]);
   }));
 
   return function getFigmaAssets(_x) {
-    return _ref2.apply(this, arguments);
+    return _ref.apply(this, arguments);
   };
 }();
 

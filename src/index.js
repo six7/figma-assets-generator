@@ -1,18 +1,33 @@
 require("@babel/polyfill");
 require("dotenv").config();
+import fs from "fs";
 import * as Figma from "figma-js";
-const Listr = require("listr");
+import Listr from "listr";
 
-import { saveImageToFs } from "./saveFile";
+// import { readConfig } from "./helpers/readConfig";
+import { saveImageToFs } from "./helpers/saveImageToFs";
 
-const getFigmaAssets = async ({
-  fileId,
-  documentId,
-  fileExtension = "svg",
-  personalAccessToken = process.env.FIGMA_TOKEN,
-  output = "icons"
-}) => {
+const CONFIG_FILENAME = "figma-assets-generator.json";
+
+const getFigmaAssets = async options => {
+  // readConfig(CONFIG_FILENAME, (err, contents) => {
+  //   if (err) throw err;
+  //   console.log("Found valid configuration file", contents);
+  //   configOptions = JSON.parse(contents);
+  //   return configOptions;
+  // });
+
   try {
+    const config = await JSON.parse(fs.readFileSync(CONFIG_FILENAME, "utf-8"));
+    let { fileId, documentId, fileExtension, personalAccessToken, output } =
+      options || config;
+
+    output = output || "assets";
+    fileExtension = fileExtension || "svg";
+    personalAccessToken = personalAccessToken || process.env.FIGMA_TOKEN;
+    if (!personalAccessToken) throw new Error("No token specified!");
+    if (!fileId) throw new Error("No file id given");
+    if (!documentId) throw new Error("No document id given");
     const client = Figma.Client({
       personalAccessToken
     });
@@ -26,6 +41,7 @@ const getFigmaAssets = async ({
       itemDocument = file.data.document.children.find(
         doc => doc.id === documentId
       );
+      if (!itemDocument.name) throw new Error("node id not found");
       task.title = `Found document ${itemDocument.name}`;
       return itemDocument;
     };
@@ -38,7 +54,7 @@ const getFigmaAssets = async ({
             items.push({ id: item.id, name: item.name });
           });
       });
-      if (items.length === 0) throw "No items found";
+      if (items.length === 0) throw new Error("No items found");
       task.title = `Found ${items.length} items`;
       return items.length;
     };
@@ -72,7 +88,7 @@ const getFigmaAssets = async ({
         task.title = `Sucess! Saved images to '${output}'`;
         return itemsWithUrls;
       } catch (e) {
-        throw "Error saving images to filesystem";
+        throw new Error("Error saving images to filesystem");
       }
     };
 
