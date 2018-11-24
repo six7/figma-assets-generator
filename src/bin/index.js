@@ -4,7 +4,7 @@
 
 require("dotenv").config();
 import fs from "fs";
-import { getFigmaAssets } from "../index";
+import { getFigmaAssets } from "../";
 
 const CONFIG_FILENAME = "figma-assets-generator.json";
 

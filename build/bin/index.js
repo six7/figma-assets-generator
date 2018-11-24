@@ -3,7 +3,7 @@
 
 var _fs = _interopRequireDefault(require("fs"));
 
-var _index = require("../index");
+var _ = require("../");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -34,7 +34,7 @@ readConfig(CONFIG_FILENAME, function (err, contents) {
       CONFIG = JSON.parse(contents);
       console.log("Found valid configuration file!");
       CONFIG.personalAccessToken = CONFIG.personalAccessToken || process.env.FIGMA_TOKEN;
-      (0, _index.getFigmaAssets)(CONFIG);
+      (0, _.getFigmaAssets)(CONFIG);
     } catch (err) {
       console.error("ERROR!");
       console.error(err);

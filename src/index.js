@@ -1,20 +1,9 @@
 require("@babel/polyfill");
 require("dotenv").config();
-import Figma from "figma-js";
+import * as Figma from "figma-js";
+const Listr = require("listr");
 
 import { saveImageToFs } from "./saveFile";
-
-const getItemsFromFrames = itemDocument => {
-  const items = [];
-  itemDocument.children.forEach(frame => {
-    frame.children
-      .filter(item => item.type === "COMPONENT")
-      .forEach(item => {
-        items.push({ id: item.id, name: item.name });
-      });
-  });
-  return items;
-};
 
 const getFigmaAssets = async ({
   fileId,
@@ -23,43 +12,91 @@ const getFigmaAssets = async ({
   personalAccessToken = process.env.FIGMA_TOKEN,
   output = "icons"
 }) => {
-  const client = Figma.Client({
-    personalAccessToken
-  });
-
   try {
-    console.log("Getting file information..");
-    const file = await client.file(fileId);
-    const itemDocument = file.data.document.children.find(
-      doc => doc.id === documentId
-    );
-    console.log(`Found document "${itemDocument.name}"`);
-    const items = await getItemsFromFrames(itemDocument);
-    if (items.length === 0) throw "no items found";
-    console.log(`Found ${items.length} items, generating...`);
-
-    const itemIds = items.map(item => item.id);
-
-    const response = await client.fileImages(fileId, {
-      ids: itemIds,
-      format: fileExtension,
-      scale: 1
+    const client = Figma.Client({
+      personalAccessToken
     });
-    if (response.data.err) {
-      throw response.data.err;
-    } else {
+
+    let itemDocument = {};
+    let items = [];
+    let itemsWithUrls = [];
+
+    const getFileInfo = async task => {
+      const file = await client.file(fileId);
+      itemDocument = file.data.document.children.find(
+        doc => doc.id === documentId
+      );
+      task.title = `Found document ${itemDocument.name}`;
+      return itemDocument;
+    };
+
+    const getItemsFromFrames = task => {
+      itemDocument.children.forEach(frame => {
+        frame.children
+          .filter(item => item.type === "COMPONENT")
+          .forEach(item => {
+            items.push({ id: item.id, name: item.name });
+          });
+      });
+      if (items.length === 0) throw "No items found";
+      task.title = `Found ${items.length} items`;
+      return items.length;
+    };
+
+    const getImageURLs = async task => {
+      const itemIds = items.map(item => item.id);
+
+      const response = await client.fileImages(fileId, {
+        ids: itemIds,
+        format: fileExtension,
+        scale: 1
+      });
+      if (response.data.err) throw response.data.err;
       let { images } = response.data;
-      const itemsWithUrls = items.map(item => {
+      itemsWithUrls = items.map(item => {
         if (images.hasOwnProperty(item.id)) {
           item.url = images[item.id];
           return item;
         }
       });
-      itemsWithUrls.forEach(item => {
-        let name = item.name.replace(/\/|\./g, "_");
-        saveImageToFs(item.url, `${name}.${fileExtension}`, output);
-      });
-    }
+      task.title = `Found ${itemsWithUrls.length} matching URLs`;
+      return itemsWithUrls;
+    };
+
+    const saveImages = task => {
+      try {
+        itemsWithUrls.forEach((item, idx) => {
+          let name = item.name.replace(/\/|\./g, "_");
+          saveImageToFs(item.url, `${name}.${fileExtension}`, output);
+        });
+        task.title = `Sucess! Saved images to '${output}'`;
+        return itemsWithUrls;
+      } catch (e) {
+        throw "Error saving images to filesystem";
+      }
+    };
+
+    let taskItems = [
+      {
+        title: "Getting document information",
+        task: (ctx, task) => getFileInfo(task)
+      },
+      {
+        title: "Find items in document",
+        task: (ctx, task) => getItemsFromFrames(task)
+      },
+      {
+        title: "Get image URLs from Figma",
+        task: (ctx, task) => getImageURLs(task)
+      },
+      {
+        title: "Save images to filesystem",
+        task: (ctx, task) => saveImages(task)
+      }
+    ];
+    let tasks = new Listr(taskItems);
+
+    await tasks.run();
   } catch (e) {
     console.error(e);
   }

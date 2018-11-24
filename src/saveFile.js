@@ -2,8 +2,7 @@ require("@babel/polyfill");
 import fetch from "node-fetch";
 import fs from "fs";
 
-const saveImageToFs = async (url, fileName, output) => {
-  console.log(`Fetching ${fileName}`);
+const saveImageToFs = async (url, fileName, output, task) => {
   try {
     const response = await fetch(url);
     if (response.status !== 200) return;
@@ -12,9 +11,8 @@ const saveImageToFs = async (url, fileName, output) => {
     }
     const file = fs.createWriteStream(`${output}/${fileName}`);
     response.body.pipe(file);
-    console.log(`Saved ${fileName}`);
   } catch (e) {
-    console.error(e);
+    throw e;
   }
 };
 

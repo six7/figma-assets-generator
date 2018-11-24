@@ -22,52 +22,50 @@ var saveImageToFs =
 function () {
   var _ref = _asyncToGenerator(
   /*#__PURE__*/
-  regeneratorRuntime.mark(function _callee(url, fileName, output) {
+  regeneratorRuntime.mark(function _callee(url, fileName, output, task) {
     var response, file;
     return regeneratorRuntime.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
-            console.log("Fetching ".concat(fileName));
-            _context.prev = 1;
-            _context.next = 4;
+            _context.prev = 0;
+            _context.next = 3;
             return (0, _nodeFetch.default)(url);
 
-          case 4:
+          case 3:
             response = _context.sent;
 
             if (!(response.status !== 200)) {
-              _context.next = 7;
+              _context.next = 6;
               break;
             }
 
             return _context.abrupt("return");
 
-          case 7:
+          case 6:
             if (!_fs.default.existsSync(output)) {
               _fs.default.mkdirSync(output);
             }
 
             file = _fs.default.createWriteStream("".concat(output, "/").concat(fileName));
             response.body.pipe(file);
-            console.log("Saved ".concat(fileName));
-            _context.next = 16;
+            _context.next = 14;
             break;
 
-          case 13:
-            _context.prev = 13;
-            _context.t0 = _context["catch"](1);
-            console.error(_context.t0);
+          case 11:
+            _context.prev = 11;
+            _context.t0 = _context["catch"](0);
+            throw _context.t0;
 
-          case 16:
+          case 14:
           case "end":
             return _context.stop();
         }
       }
-    }, _callee, this, [[1, 13]]);
+    }, _callee, this, [[0, 11]]);
   }));
 
-  return function saveImageToFs(_x, _x2, _x3) {
+  return function saveImageToFs(_x, _x2, _x3, _x4) {
     return _ref.apply(this, arguments);
   };
 }();
