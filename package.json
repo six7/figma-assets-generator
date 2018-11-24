@@ -2,24 +2,41 @@
   "name": "figma-assets-generator",
   "description": "Create figma assets like icons, svg, images just by providing a fileId and the node where your components live.",
   "version": "1.0.1",
-  "main": "index.js",
+  "main": "build/index.js",
   "author": "Jan Six / six.jan@gmail.com",
   "license": "MIT",
   "dependencies": {
+    "@babel/polyfill": "^7.0.0",
+    "dotenv": "^6.1.0",
     "figma-js": "^1.5.1",
     "fs": "^0.0.1-security",
     "node-fetch": "^2.3.0"
   },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
   "bin": {
-    "figma-assets-generator": "src/bin/index.js"
+    "figma-assets-generator": "build/bin/index.js"
   },
   "scripts": {
-    "start": "node .",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "figma-assets": "figma-asset-generator"
+    "dev": "watch 'npm run build' src",
+    "build": "babel src -d build",
+    "prepare": "npm run build",
+    "release": "np"
   },
   "devDependencies": {
-    "dotenv": "^6.1.0"
+    "@babel/cli": "^7.1.5",
+    "@babel/core": "^7.1.6",
+    "@babel/preset-env": "^7.1.6",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.9.0",
+    "eslint-config-airbnb": "^17.1.0",
+    "eslint-config-prettier": "^3.3.0",
+    "eslint-plugin-prettier": "^3.0.0",
+    "np": "^3.0.4",
+    "watch": "^1.0.2"
   },
   "repository": {
     "type": "git",

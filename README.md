@@ -35,10 +35,16 @@ Provide a `figma-assets-generator.json` file with the following configuration:
 Run
 
 ```
-figma-assets-generator
+npx figma-assets-generator
 ```
 
 on the command line, or via `node_modules/.bin/figma_assets_generator`
+
+or create a new entry in `package.json` under `scripts`:
+
+```
+"figma-generate": "figma-assets-generator"
+```
 
 `// Todo:` If no figma-assets-generator.json file was provided a wild wizard appears!
 
