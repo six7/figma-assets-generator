@@ -1,6 +1,7 @@
-require("@babel/polyfill");
-import fetch from "node-fetch";
-import fs from "fs";
+import fetch from 'node-fetch';
+import fs from 'fs';
+
+require('@babel/polyfill');
 
 const saveImageToFs = async (url, fileName, output) => {
   try {

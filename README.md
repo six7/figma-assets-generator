@@ -28,7 +28,8 @@ Provide a `figma-assets-generator.json` file with the following configuration:
   "fileId": "YOUR_FILE_IDE", // required: file id where your icons document is stored
   "documentId": "123:456", // required: node of your icons document, e.g. "453:8089"
   "fileExtension": "svg", // optional: ["svg", "jpg", "png"], default: svg
-  "output": "assets" // optional: folder where icons will be saved to, defaults to "icons" (cannot have subdirectories, see #17)
+  "output": "assets/icons/svg" // optional: folder (relative path from working directory) where icons will be saved to, defaults to "assets",
+  "scale": "1" // optional, values between 0.05 and 4 are possible, default: 1
 }
 ```
 
@@ -68,4 +69,4 @@ getFigmaAssets(options)
 
 ## Caveats
 
-Currently doesn't work with subdirectories. Replaces `/` and `.` with `_` to work around that.
+Replaces `/` and `.` in component names with `_`.
