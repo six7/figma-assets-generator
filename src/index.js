@@ -10,9 +10,18 @@ require('dotenv').config();
 
 const CONFIG_FILENAME = 'figma-assets-generator.json';
 
+const getConfigFile = async  () => {
+  try {
+    return await JSON.parse(fs.readFileSync(CONFIG_FILENAME, 'utf-8'));
+  } catch (e) {
+    return {};
+  }
+};
+
 const getFigmaAssets = async options => {
   try {
-    const config = await JSON.parse(fs.readFileSync(CONFIG_FILENAME, 'utf-8'));
+    const configFile = await getConfigFile();
+
     let {
       fileId,
       documentId,
@@ -20,7 +29,7 @@ const getFigmaAssets = async options => {
       personalAccessToken,
       output,
       scale,
-    } = options || config;
+    } = options || configFile;
 
     output = output || 'assets';
     fileExtension = fileExtension || 'svg';
