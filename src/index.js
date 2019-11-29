@@ -49,11 +49,13 @@ const getFigmaAssets = async options => {
 
     const getItemsFromFrames = task => {
       itemDocument.children.forEach(frame => {
-        frame.children
-          .filter(item => item.type === 'COMPONENT')
-          .forEach(item => {
-            items.push({ id: item.id, name: item.name });
-          });
+        if (frame.children) {
+          frame.children
+            .filter(item => item.type === 'COMPONENT')
+            .forEach(item => {
+              items.push({ id: item.id, name: item.name });
+            });
+        }
       });
       if (items.length === 0) throw new Error('No items found');
       task.title = `Found ${items.length} items`;
