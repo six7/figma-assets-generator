@@ -67,6 +67,13 @@ const options = {
 getFigmaAssets(options)
 ```
 
+#### How do I get fileId and documentId ?
+To get the fileId you need to open the document in your browser, the fileId is indicated in the address bar:
+
+https://www.figma.com/file/KiFw6W2QjnKqhA4hoWsrhQ/Untitled?node-id=0%3A123
+
+The part after `/file/` would be the fileId (in this example `KiFw6W2QjnKqhA4hoWsrhQ`) and the documentId would be the part after `node-id=` (in this example `0%3A123` - however `%3A` is just HTML Encoding for `:` so the document id would be `0:123` 
+
 ## Caveats
 
 Replaces `/` and `.` in component names with `_`.
