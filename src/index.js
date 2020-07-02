@@ -77,6 +77,7 @@ const getFigmaAssets = async options => {
       const response = await client.fileImages(fileId, {
         ids: itemIds,
         format: fileExtension,
+        use_absolute_bounds: true,
         scale,
       });
       if (response.data.err) throw response.data.err;

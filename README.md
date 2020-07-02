@@ -27,7 +27,7 @@ Provide a `figma-assets-generator.json` file with the following configuration:
   "personalAccessToken": "YOUR_ACCESS_TOKEN",  // required: your figma access token (you can provide this as FIGMA_TOKEN in a .env file)
   "fileId": "YOUR_FILE_IDE", // required: file id where your icons document is stored
   "documentId": "123:456", // required: node of your icons document, e.g. "453:8089"
-  "fileExtension": "svg", // optional: ["svg", "jpg", "png"], default: svg
+  "fileExtension": "svg", // optional: ["svg", "jpg", "png", "pdf"], default: svg
   "output": "assets/icons/svg" // optional: folder (relative path from working directory) where icons will be saved to, defaults to "assets",
   "scale": "1" // optional, values between 0.05 and 4 are possible, default: 1
 }
