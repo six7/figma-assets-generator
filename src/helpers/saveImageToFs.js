@@ -3,15 +3,20 @@ import fs from 'fs';
 
 require('@babel/polyfill');
 
-const saveImageToFs = async (url, fileName, output) => {
+const saveImageToFs = async (url, imageName, fileExtension, output, createSubdirectories) => {
   try {
-    const response = await fetch(url);
+    const imageNameArray = imageName.split('/');
+    const subfolder = imageNameArray.slice(0, -1).join('/');
+    const name = createSubdirectories ? imageName : imageName.replace(/[\/.]/g, '_');
+    const fileName = `${name}.${fileExtension}`;
+
+    const response = await fetch(url, {});
     if (response.status !== 200) return;
-    if (!fs.existsSync(output)) {
-      fs.mkdirSync(output);
+    if (createSubdirectories && !fs.existsSync(`${output}/${subfolder}`)) {
+      fs.mkdirSync(`${output}/${subfolder}`, { recursive: true });
     }
-    const file = fs.createWriteStream(`${output}/${fileName}`);
-    response.body.pipe(file);
+    const content = await response.text();
+    fs.writeFileSync(`${output}/${fileName}`, content);
   } catch (e) {
     throw e;
   }

@@ -30,6 +30,7 @@ Provide a `figma-assets-generator.json` file with the following configuration:
   "fileExtension": "svg", // optional: ["svg", "jpg", "png", "pdf"], default: svg
   "output": "assets/icons/svg" // optional: folder (relative path from working directory) where icons will be saved to, defaults to "assets",
   "scale": "1" // optional, values between 0.05 and 4 are possible, default: 1
+  "createSubdirectories": false // optional: if true, a Figma component name "Icons/Actions/ChevronLeft" would result in a folder structure. Else slashes will be replaced with underscores.
 }
 ```
 
@@ -62,6 +63,7 @@ const options = {
   documentId: "453:8089", // required: node of your icons document, e.g. "453:8089"
   fileExtension: "svg", // optional: ["svg", "jpg", "png"], default: svg
   output: "assets" // optional: folder where icons will be saved to, defaults to "icons" (cannot have subdirectories, see #17)
+  createSubdirectories: false // optional: if true, a Figma component name "Icons/Actions/ChevronLeft" would result in a folder structure. Else slashes will be replaced with underscores. Defaults to false.
 }
 
 getFigmaAssets(options)
@@ -76,4 +78,4 @@ The part after `/file/` would be the fileId (in this example `KiFw6W2QjnKqhA4hoW
 
 ## Caveats
 
-Replaces `/` and `.` in component names with `_`.
+Replaces `/` and `.` in component names with `_` unless `createSubdirectories` is set to true (in that case it creates the actual folder structure in the target folder).
