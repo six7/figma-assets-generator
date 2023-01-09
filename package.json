@@ -10,7 +10,7 @@
     "dotenv": "^6.1.0",
     "figma-js": "^1.5.1",
     "fs": "^0.0.1-security",
-    "listr": "^0.14.3",
+    "listr2": "^5.0.6",
     "node-fetch": "^2.3.0"
   },
   "babel": {

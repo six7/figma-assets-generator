@@ -1,6 +1,6 @@
 import fs from 'fs';
 import * as Figma from 'figma-js';
-import Listr from 'listr';
+import { Listr } from 'listr2';
 
 import { saveImageToFs } from './helpers/saveImageToFs';
 import { mkDirByPathSync } from './helpers/mkDirByPathSync';
@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const CONFIG_FILENAME = 'figma-assets-generator.json';
 
-const getConfigFile = async  () => {
+const getConfigFile = async () => {
   try {
     return await JSON.parse(fs.readFileSync(CONFIG_FILENAME, 'utf-8'));
   } catch (e) {
@@ -29,11 +29,13 @@ const getFigmaAssets = async options => {
       personalAccessToken,
       output,
       scale,
+      createSubdirectories,
     } = options || configFile;
 
     output = output || 'assets';
     fileExtension = fileExtension || 'svg';
     scale = scale || '1';
+    createSubdirectories = createSubdirectories || false;
     personalAccessToken = personalAccessToken || process.env.FIGMA_TOKEN;
     if (!personalAccessToken) throw new Error('No token specified!');
     if (!fileId) throw new Error('No file id given');
@@ -49,7 +51,7 @@ const getFigmaAssets = async options => {
     const getFileInfo = async task => {
       const file = await client.file(fileId);
       itemDocument = file.data.document.children.find(
-        doc => doc.id === documentId
+        doc => doc.id === documentId,
       );
       if (!itemDocument.name) throw new Error('node id not found');
       task.title = `Found document ${itemDocument.name}`;
@@ -92,14 +94,13 @@ const getFigmaAssets = async options => {
       return itemsWithUrls;
     };
 
-    const saveImages = task => {
+    const saveImages = async task => {
       try {
         mkDirByPathSync(output);
-        itemsWithUrls.forEach((item, idx) => {
-          const name = item.name.replace(/\/|\./g, '_');
-          saveImageToFs(item.url, `${name}.${fileExtension}`, output);
-        });
-        task.title = `Sucess! Saved images to '${output}'`;
+        await Promise.all(itemsWithUrls.map(item => {
+          return saveImageToFs(item.url, item.name, fileExtension, output, createSubdirectories);
+        }));
+        task.title = `Success! Saved images to '${output}'`;
         return itemsWithUrls;
       } catch (e) {
         throw new Error('Error saving images to filesystem');
@@ -109,7 +110,7 @@ const getFigmaAssets = async options => {
     const taskItems = [
       {
         title: 'Getting document information',
-        task: (ctx, task) => getFileInfo(task),
+        task: async (ctx, task) => getFileInfo(task),
       },
       {
         title: 'Find items in document',
@@ -117,11 +118,11 @@ const getFigmaAssets = async options => {
       },
       {
         title: 'Get image URLs from Figma',
-        task: (ctx, task) => getImageURLs(task),
+        task: async (ctx, task) => getImageURLs(task),
       },
       {
         title: 'Save images to filesystem',
-        task: (ctx, task) => saveImages(task),
+        task: async (ctx, task) => saveImages(task),
       },
     ];
     const tasks = new Listr(taskItems);
